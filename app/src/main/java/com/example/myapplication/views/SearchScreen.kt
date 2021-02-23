@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.views
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HomeScreen() {
+fun SearchScreen() {
     val shape = RoundedCornerShape(topLeft = 50f, topRight = 50f, bottomLeft = 50f, bottomRight = 50f)
     Card(
         shape = RoundedCornerShape(5.dp),

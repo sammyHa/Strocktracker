@@ -1,10 +1,14 @@
-package com.example.myapplication
+package com.example.myapplication.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -12,24 +16,38 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.AmbientContext
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import kotlinx.coroutines.selects.select
+import com.example.myapplication.views.MenuScreen
+import com.example.myapplication.R
+import com.example.myapplication.Screen
+import com.example.myapplication.views.SearchScreen
+import com.example.myapplication.network.RecipeService
+import com.example.myapplication.views.PlannerScreen
+import com.example.myapplication.views.ProgressScreen
+import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import android.content.Context as ContentContext
+
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
-                MyApp()
-            }
+            MyApp()
         }
+
 
     }
 }
@@ -48,6 +66,9 @@ fun MyApp(){
             ) {
                 BalanceInfo()
                 BottomBar()
+                getRecipe()
+
+
             }
 
 
@@ -88,20 +109,28 @@ fun BalanceInfo(){
 @Composable
 fun BottomBar(){
     val navController = rememberNavController()
-    val items = listOf(Screen.Home, Screen.Add, Screen.Profile)
+    val items = listOf(Screen.Search, Screen.Planner, Screen.Progress, Screen.Menu)
     val shape = RoundedCornerShape(topLeft = 50f, topRight = 50f, bottomLeft = 50f, bottomRight = 50f)
 
 
                Scaffold(
                    backgroundColor = Color(0xff13354F),
 
+//                   floatingActionButton = {
+//                       AddReceipeButton()
+//                   },
+//                   floatingActionButtonPosition = FabPosition.Center,
+//                   isFloatingActionButtonDocked = true,
+//
+
+
                    bottomBar = {
+
                        BottomNavigation(
-                           backgroundColor = Color(0xff102B41),
-                           contentColor = Color.Blue,
+                           backgroundColor = Color(0xffffffff),
+
 
                            modifier = Modifier
-                               .padding(16.dp)
                                .height(60.dp)
 
                        ) {
@@ -111,13 +140,16 @@ fun BottomBar(){
                            val tintColor = Color(0xff6F6F6F)
                            items.forEach {
                                BottomNavigationItem(
-                                   modifier = Modifier.width(128.dp).height(128.dp),
+//                                   unselectedContentColor = Color(0xffCCFF90),
+//                                   selectedContentColor = Color(0xffCCFF90),
 
                                    icon = {
                                        when(it){
-                                           Screen.Home -> Icon(vectorResource(R.drawable.chart_24),"", tint = tintColor)
-                                           Screen.Add -> Icon(vectorResource(R.drawable.add_box_24), "", tint = tintColor)
-                                           Screen.Profile -> Icon(vectorResource(R.drawable.account_box_24), "", tint =  tintColor)
+                                           Screen.Search -> Icon(imageResource(R.drawable.ic_search),"")
+                                           Screen.Planner -> Icon(imageResource(R.drawable.ic_planner),"")
+                                           Screen.Add -> Icon(imageResource(R.drawable.add_24), "", tint = tintColor)
+                                           Screen.Progress -> Icon(imageResource(R.drawable.ic_progress), "")
+                                           Screen.Menu -> Icon(imageResource(R.drawable.ic_menu),"")
                                        }
                                    },
 
@@ -143,10 +175,13 @@ fun BottomBar(){
 
 @Composable
 fun ScreenController(navController: NavHostController){
-    NavHost(navController = navController, startDestination = Screen.Home.route){
-        composable(Screen.Home.route){ HomeScreen() }
-        composable(Screen.Add.route){AddScreen() }
-        composable(Screen.Profile.route){ AccountScreen() }
+
+    NavHost(navController = navController, startDestination = Screen.Search.route){
+        composable(Screen.Search.route){ SearchScreen() }
+        composable(Screen.Planner.route){ PlannerScreen() }
+        //composable(Screen.Add.route){ AddScreen() }
+        composable(Screen.Progress.route){ ProgressScreen() }
+        composable(Screen.Menu.route){ MenuScreen() }
     }
 }
 
@@ -155,3 +190,45 @@ fun ScreenController(navController: NavHostController){
 fun showMessage(context: ContentContext, message:String){
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
+
+
+@Composable
+fun AddReceipeButton(){
+    val icon = vectorResource(id = R.drawable.add_24)
+    val context = AmbientContext.current
+    FloatingActionButton(
+
+        onClick = {
+        showMessage(context, "Clicked The Add Recipe")
+    }){
+        Icon(
+            icon, "", tint = Color(0xffe9e9e9)
+//        asset = icon
+        )
+    }
+}
+
+@Composable
+fun getRecipe(){
+
+
+    val BASE_URL = "https://food2fork.ca/api/recipe/"
+    val TOKEN = "Token 9c8b06d329136da358c2d00e76946b0111ce2c48"
+    val service = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+        .build()
+        .create(RecipeService::class.java)
+
+    CoroutineScope(IO).launch {
+        val recipe = service.get(
+            token = TOKEN,
+            id = 580
+        )
+        Log.d("MainActivity", "onCreate: ${recipe.title}")
+
+    }
+
+}
+
+

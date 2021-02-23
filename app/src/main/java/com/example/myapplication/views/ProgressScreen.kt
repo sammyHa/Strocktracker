@@ -1,14 +1,12 @@
-package com.example.myapplication
+package com.example.myapplication.views
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun AccountScreen() {
+fun ProgressScreen (){
     Column {
-        Text(text = "Profile Screen")
+        Text(text = "Progress Screen")
     }
-
-
 }
