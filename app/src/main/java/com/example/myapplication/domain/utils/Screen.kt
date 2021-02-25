@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.domain.utils
 
 
 sealed class Screen(

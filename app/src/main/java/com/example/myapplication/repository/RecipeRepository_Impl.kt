@@ -17,4 +17,7 @@ class RecipeRepository_Impl(
         return mapper.mapToDomainModel(recipeService.get(token, id))
     }
 
+    override suspend fun insert(token: String, recipe: Recipe) {
+        //mapper.mapFromDomainModel(recipe)
+    }
 }

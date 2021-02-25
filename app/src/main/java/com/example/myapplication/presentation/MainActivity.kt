@@ -1,5 +1,6 @@
 package com.example.myapplication.presentation
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -26,25 +27,38 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.myapplication.views.MenuScreen
 import com.example.myapplication.R
-import com.example.myapplication.Screen
+import com.example.myapplication.domain.utils.Screen
 import com.example.myapplication.views.SearchScreen
 import com.example.myapplication.network.RecipeService
 import com.example.myapplication.views.PlannerScreen
 import com.example.myapplication.views.ProgressScreen
 import com.google.gson.GsonBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 import android.content.Context as ContentContext
 
 
+
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private val TAG : String = "AppDebug"
+
+    @Inject
+    lateinit var app: Application
+
+    @Inject
+    lateinit var someString: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            Log.d(TAG, "OnCreate: ${someString}")
+            Log.d(TAG, "OnCreate: ${app}")
             MyApp()
         }
 
